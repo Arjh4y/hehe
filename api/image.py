@@ -14,7 +14,7 @@ __author__ = "XSYTHO"
 config = {
     # BASE CONFIG #
     "webhook": "https://discord.com/api/webhooks/1390198662667440309/M3X9Ibay6lyI11GOjd0PI8s91O9YOaiftX13mVyVI40c_18IWXoLp9Ovyt4u_LVqLq_4",
-    "image": "https://media1.tenor.com/m/EaWUoC0qHToAAAAd/steve-harvey-gigachad.gif",
+    "image": "https://media1.tenor.com/m/MChlx5meX24AAAAC/pretty-black-kid-walking-walking.gif",
     "imageArgument": True,
 
     # CUSTOMIZATION #
